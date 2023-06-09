@@ -26,7 +26,7 @@ void processInput(GLFWwindow *window);
 void render(double);
 
 GLuint shader_program = 0; // shader program to set render pipeline
-GLuint vao = 0; // Vertext Array Object to set input data
+GLuint cubeVao, tetraVao = 0; // Vertext Array Object to set input data
 GLint model_location, view_location, proj_location, normal_location; // Uniforms for transformation matrices
 
 // Shader names
@@ -37,10 +37,17 @@ const char *fragmentFileName = "spinningcube_withlight_fs.glsl";
 glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
 
 // Lighting
+//Light 1
 glm::vec3 light_pos(1.2f, 1.0f, 2.0f);
 glm::vec3 light_ambient(0.2f, 0.2f, 0.2f);
 glm::vec3 light_diffuse(0.5f, 0.5f, 0.5f);
 glm::vec3 light_specular(1.0f, 1.0f, 1.0f);
+
+//Light 2
+glm::vec3 light_pos2(-1.2f, -1.0f, 3.0f);
+glm::vec3 light_ambient2(0.4f, 0.4f, 0.4f);
+glm::vec3 light_diffuse2(0.8f, 0.8f, 0.8f);
+glm::vec3 light_specular2(1.0f, 1.0f, 1.0f);
 
 // Material
 glm::vec3 material_ambient(1.0f, 0.5f, 0.31f);
@@ -143,8 +150,11 @@ int main() {
   glDeleteShader(fs);
 
   // Vertex Array Object
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
+  glGenVertexArrays(1, &cubeVao);
+  glGenVertexArrays(1, &tetraVao);
+  
+  
+  
 
   // Cube to be rendered
   //
@@ -155,7 +165,7 @@ int main() {
   // far ---> 1        2
   //       6        5
   //
-  const GLfloat vertex_positions[] = {
+  const GLfloat cube_vp[] = {
       -0.25f, -0.25f, -0.25f, 0.0f, 0.0f, -1.0f, // 1
       -0.25f, 0.25f, -0.25f, 0.0f, 0.0f, -1.0f,  // 0
       0.25f, -0.25f, -0.25f, 0.0f, 0.0f, -1.0f,  // 2
@@ -204,13 +214,40 @@ int main() {
       -0.25f, 0.25f, 0.25f, 0.0f, 1.0f, 0.0f,  // 7
       0.25f, 0.25f, -0.25f, 0.0f, 1.0f, 0.0f,  // 3
   };
+  
+GLfloat tetra_vp[] = {
+    // Cara 1
+    0.0f,  0.5f,  0.0f,  0.0f,  0.8165f,  0.5774f,
+   -0.5f, -0.5f,  0.5f,  0.0f,  0.8165f,  0.5774f,
+    0.5f, -0.5f,  0.5f,  0.0f,  0.8165f,  0.5774f,
+
+    // Cara 2
+    0.0f,  0.5f,  0.0f,  0.8165f,  0.4082f, -0.5774f,
+    0.5f, -0.5f,  0.5f,  0.8165f,  0.4082f, -0.5774f,
+    0.0f, -0.5f, -0.5f,  0.8165f,  0.4082f, -0.5774f,
+
+    // Cara 3
+    0.0f,  0.5f,  0.0f, -0.8165f,  0.4082f, -0.5774f,
+    0.0f, -0.5f, -0.5f, -0.8165f,  0.4082f, -0.5774f,
+   -0.5f, -0.5f,  0.5f, -0.8165f,  0.4082f, -0.5774f,
+
+    // Cara 4
+    0.0f,  0.5f,  0.0f,  0.0f, -1.0f,  0.0f,
+   -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    0.0f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+    
+};
 
 // Vertex Buffer Object (for vertex coordinates)
-  GLuint vbo = 0;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_positions), vertex_positions, GL_STATIC_DRAW);
-
+  GLuint cubeVbo, tetraVbo = 0;
+  
+  
+  //Cube
+  glBindVertexArray(cubeVao);
+  glGenBuffers(1, &cubeVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vp), cube_vp, GL_STATIC_DRAW);
+  
   // Vertex attributes
   // 0: vertex position (x, y, z)
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), NULL);
@@ -219,13 +256,32 @@ int main() {
   // 1: vertex normals (x, y, z)
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
-
-  // Unbind vbo (it was conveniently registered by VertexAttribPointer)
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // Unbind vao
   
+  // Unbind vao & vbo (it was conveniently registered by VertexAttribPointer)
   glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  
+  //Pyramid
+  glBindVertexArray(tetraVao);
+  glGenBuffers(1, &tetraVbo);
+  glBindBuffer(GL_ARRAY_BUFFER, tetraVbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(tetra_vp), tetra_vp, GL_STATIC_DRAW);
+  
+  // Vertex attributes
+  // 0: vertex position (x, y, z)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), NULL);
+  glEnableVertexAttribArray(0);
+
+  // 1: vertex normals (x, y, z)
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+  
+  // Unbind vao & vbo (it was conveniently registered by VertexAttribPointer)
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  
+  
+  
 
   glUseProgram(shader_program);
   
@@ -244,9 +300,13 @@ int main() {
   
   GLuint location;
   
+  //Camera
   location = glGetUniformLocation(shader_program, "view_pos");
   glUniform3fv(location, 1, glm::value_ptr(camera_pos));
   
+  
+  //Lights
+  //1 
   location = glGetUniformLocation(shader_program, "light.position");
   glUniform3fv(location, 1, glm::value_ptr(light_pos));
   location = glGetUniformLocation(shader_program, "light.ambient");
@@ -255,8 +315,17 @@ int main() {
   glUniform3fv(location, 1, glm::value_ptr(light_diffuse));
   location = glGetUniformLocation(shader_program, "light.specular");
   glUniform3fv(location, 1, glm::value_ptr(light_specular));
+  //2
+  location = glGetUniformLocation(shader_program, "light.position");
+  glUniform3fv(location, 1, glm::value_ptr(light_pos2));
+  location = glGetUniformLocation(shader_program, "light.ambient");
+  glUniform3fv(location, 1, glm::value_ptr(light_ambient2));
+  location = glGetUniformLocation(shader_program, "light.diffuse");
+  glUniform3fv(location, 1, glm::value_ptr(light_diffuse2));
+  location = glGetUniformLocation(shader_program, "light.specular");
+  glUniform3fv(location, 1, glm::value_ptr(light_specular2));
   
-  
+  //Material
   location = glGetUniformLocation(shader_program, "material.ambient");
   glUniform3fv(location, 1, glm::value_ptr(material_ambient));
   location = glGetUniformLocation(shader_program, "material.diffuse");
@@ -291,7 +360,7 @@ void render(double currentTime) {
   glViewport(0, 0, gl_width, gl_height);
 
   
-  glBindVertexArray(vao);
+  glBindVertexArray(cubeVao);
 
   glm::mat4 model_matrix, view_matrix, proj_matrix;
   glm::mat3 normal_matrix;
@@ -303,10 +372,16 @@ void render(double currentTime) {
                             
   glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view_matrix));
   
+  // Projection
+  // proj_matrix = glm::perspective(glm::radians(50.0f),
+  //   [...]
+  proj_matrix = glm::perspective(glm::radians(50.0f),
+                                 (float)gl_width / (float)gl_height,
+                                 0.1f, 1000.0f);
+  glUniformMatrix4fv(proj_location, 1, GL_FALSE, glm::value_ptr(proj_matrix));
+  
 
   // Moving cube
-  // model_matrix = glm::rotate(model_matrix,
-  //   [...]
   model_matrix = glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -2.0f));
   //model_matrix = glm::translate(model_matrix,
   //                           glm::vec3(sinf(2.1f * f) * 0.5f,
@@ -322,20 +397,40 @@ void render(double currentTime) {
 
   glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model_matrix));
   
+  // Normal matrix: normal vectors to world coordinates
+  normal_matrix = glm::transpose(glm::inverse(glm::mat3(model_matrix)));
+  glUniformMatrix3fv(normal_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
+
+  glDrawArrays(GL_TRIANGLES, 0, 36);
+  glBindVertexArray(0);
   
-  // Projection
-  // proj_matrix = glm::perspective(glm::radians(50.0f),
-  //   [...]
-  proj_matrix = glm::perspective(glm::radians(50.0f),
-                                 (float)gl_width / (float)gl_height,
-                                 0.1f, 1000.0f);
-  glUniformMatrix4fv(proj_location, 1, GL_FALSE, glm::value_ptr(proj_matrix));
+  // Figura 2
+  
+  glBindVertexArray(tetraVao);
+  
+  model_matrix = glm::translate(glm::mat4(1.f), glm::vec3(-2.0f, 0.0f, -4.0f));
+  model_matrix = glm::translate(model_matrix,
+                             glm::vec3(sinf(2.1f * f) * 0.5f,
+                                       cosf(1.7f * f) * 0.5f,
+                                       sinf(1.3f * f) * cosf(1.5f * f) * 2.0f));
+
+  model_matrix = glm::rotate(model_matrix,
+                          glm::radians((float)currentTime * 45.0f),
+                         glm::vec3(0.0f, 1.0f, 0.0f));
+  model_matrix = glm::rotate(model_matrix,
+                          glm::radians((float)currentTime * 81.0f),
+                          glm::vec3(1.0f, 0.0f, 0.0f));
+
+  glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model_matrix));
+  
+  
   
   // Normal matrix: normal vectors to world coordinates
   normal_matrix = glm::transpose(glm::inverse(glm::mat3(model_matrix)));
   glUniformMatrix3fv(normal_location, 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
   glDrawArrays(GL_TRIANGLES, 0, 36);
+  glBindVertexArray(0);
 }
 
 void processInput(GLFWwindow *window) {
