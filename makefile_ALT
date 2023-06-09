@@ -1,0 +1,44 @@
+todo: test hellotriangle helloviewport adaptviewport movingtriangle \
+	spinningcube hellotexture hellotexture2 multitex multitex2 \
+	spinningcube_withlight
+
+test: test.c
+	gcc -o test test.c -lGL -lGLEW -lglfw
+
+hellotriangle: hellotriangle.c
+	gcc -o hellotriangle hellotriangle.c -lGL -lGLEW -lglfw
+
+helloviewport: helloviewport.c
+	gcc -o helloviewport helloviewport.c -lGL -lGLEW -lglfw
+
+adaptviewport: adaptviewport.c
+	gcc -o adaptviewport adaptviewport.c -lGL -lGLEW -lglfw
+
+movingtriangle: movingtriangle.c
+	gcc -o movingtriangle movingtriangle.c -lGL -lGLEW -lglfw -lm
+
+spinningcube: spinningcube.cpp
+	g++ -o spinningcube spinningcube.cpp -lGL -lGLEW -lglfw
+
+hellotexture: hellotexture.c
+	gcc -o hellotexture hellotexture.c -lGL -lGLEW -lglfw -lm
+
+hellotexture2: hellotexture2.c
+	gcc -o hellotexture2 hellotexture2.c -lGL -lGLEW -lglfw -lm
+
+multitex: multitex.c
+	gcc -o multitex multitex.c -lGL -lGLEW -lglfw -lm
+
+multitex2: multitex2.c
+	gcc -o multitex2 multitex2.c -lGL -lGLEW -lglfw -lm
+
+spinningcube_withlight: spinningcube_withlight.cpp textfile.c
+	gcc $^ -lGL -lGLEW -lglfw -lm -o $@
+
+clean:
+	rm -f *.o *~
+
+cleanall: clean
+	rm -f test hellotriangle helloviewport adaptviewport movingtriangle \
+		spinningcube hellotexture hellotexture2 multitex multitex2 \
+		spinningcube_withlight
