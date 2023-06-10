@@ -307,22 +307,22 @@ GLfloat tetra_vp[] = {
   
   //Lights
   //1 
-  location = glGetUniformLocation(shader_program, "light.position");
+  location = glGetUniformLocation(shader_program, "light1.position");
   glUniform3fv(location, 1, glm::value_ptr(light_pos));
-  location = glGetUniformLocation(shader_program, "light.ambient");
+  location = glGetUniformLocation(shader_program, "light1.ambient");
   glUniform3fv(location, 1, glm::value_ptr(light_ambient));
-  location = glGetUniformLocation(shader_program, "light.diffuse");
+  location = glGetUniformLocation(shader_program, "light1.diffuse");
   glUniform3fv(location, 1, glm::value_ptr(light_diffuse));
-  location = glGetUniformLocation(shader_program, "light.specular");
+  location = glGetUniformLocation(shader_program, "light1.specular");
   glUniform3fv(location, 1, glm::value_ptr(light_specular));
   //2
-  location = glGetUniformLocation(shader_program, "light.position");
+  location = glGetUniformLocation(shader_program, "light2.position");
   glUniform3fv(location, 1, glm::value_ptr(light_pos2));
-  location = glGetUniformLocation(shader_program, "light.ambient");
+  location = glGetUniformLocation(shader_program, "light2.ambient");
   glUniform3fv(location, 1, glm::value_ptr(light_ambient2));
-  location = glGetUniformLocation(shader_program, "light.diffuse");
+  location = glGetUniformLocation(shader_program, "light2.diffuse");
   glUniform3fv(location, 1, glm::value_ptr(light_diffuse2));
-  location = glGetUniformLocation(shader_program, "light.specular");
+  location = glGetUniformLocation(shader_program, "light2.specular");
   glUniform3fv(location, 1, glm::value_ptr(light_specular2));
   
   //Material
