@@ -100,19 +100,18 @@ def trace_ray(rayO, rayD):
     # Find properties of the object.
     N = get_normal(obj, M)
     color = get_color(obj, M)
-    toL = normalize(L - M)
-    toO = normalize(O - M)
-    # Shadow: find if the point is shadowed or not.
-    l = [intersect(M + N * .0001, toL, obj_sh) 
-            for k, obj_sh in enumerate(scene) if k != obj_idx]
-    if l and min(l) < np.inf:
-        return
-    # Start computing the color.
     col_ray = ambient
-    # Lambert shading (diffuse).
-    col_ray += obj.get('diffuse_c', diffuse_c) * max(np.dot(N, toL), 0) * color
-    # Blinn-Phong shading (specular).
-    col_ray += obj.get('specular_c', specular_c) * max(np.dot(N, normalize(toL + toO)), 0) ** specular_k * color_light
+    for light in lights:
+        toL = normalize(light['position'] - M)
+        toO = normalize(O - M)
+        
+        l = [intersect(M + N * .0001, toL, obj_sh) 
+             for k, obj_sh in enumerate(scene) if k != obj_idx]
+        if l and min(l) < np.inf:
+            return
+        
+        col_ray += obj.get('diffuse_c', diffuse_c) * max(np.dot(N, toL), 0) * color
+        col_ray += obj.get('specular_c', specular_c) * max(np.dot(N, normalize(toL + toO)), 0) ** specular_k * get_color(light, M)
     return obj, M, N, col_ray
 
 def add_sphere(position, radius, color):
@@ -134,6 +133,11 @@ scene = [add_sphere([.75, .1, 1.], .6, [0., 0., 1.]),
          add_sphere([-2.75, .1, 3.5], .6, [1., .572, .184]),
          add_plane([0., -.5, 0.], [0., 1., 0.]),
     ]
+
+lights = [
+    {'position': np.array([-7., 5., 5.]), 'color': np.array([1., 0., 0.])},  # Luz roja
+    {'position': np.array([5., 5., -10.]), 'color': np.array([1., 1., 1.])} # Luz blanca
+]
 
 # Light position and color.
 L = np.array([5., 5., -10.])
