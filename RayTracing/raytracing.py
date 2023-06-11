@@ -63,11 +63,46 @@ def intersect_sphere(O, D, S, R):
             return t1 if t0 < 0 else t0
     return np.inf
 
+def intersect_triangle(O, D, V0, V1, V2):
+
+    E1 = V1 - V0
+    E2 = V2 - V0
+    P = np.cross(D, E2)
+    det = np.dot(E1, P)
+
+    if abs(det) < 1e-6:
+        return np.inf
+
+    inv_det = 1. / det
+    T = O - V0
+    u = np.dot(T, P) * inv_det
+
+    if u < 0 or u > 1:
+        return np.inf
+
+    Q = np.cross(T, E1)
+    v = np.dot(D, Q) * inv_det
+
+    if v < 0 or u + v > 1:
+        return np.inf
+
+    t = np.dot(E2, Q) * inv_det
+
+    if t > 1e-6:
+        return t
+
+    return np.inf
+
+
+
+
 def intersect(O, D, obj):
     if obj['type'] == 'plane':
         return intersect_plane(O, D, obj['position'], obj['normal'])
     elif obj['type'] == 'sphere':
         return intersect_sphere(O, D, obj['position'], obj['radius'])
+    elif obj['type'] == 'triangle':
+        return intersect_triangle(O, D, obj['v0'], obj['v1'], obj['v2'])
 
 def get_normal(obj, M):
     # Find normal.
@@ -75,6 +110,9 @@ def get_normal(obj, M):
         N = normalize(M - obj['position'])
     elif obj['type'] == 'plane':
         N = obj['normal']
+    elif obj['type'] == 'triangle':
+        N = np.cross(obj['v1'] - obj['v0'], obj['v2'] - obj['v0'])
+        N = normalize(N)
     return N
     
 def get_color(obj, M):
@@ -124,6 +162,11 @@ def add_plane(position, normal):
         color=lambda M: (color_plane0 
             if (int(M[0] * 2) % 2) == (int(M[2] * 2) % 2) else color_plane1),
         diffuse_c=.75, specular_c=.5, reflection=.25)
+
+def add_triangle(v0, v1, v2, color):
+    return dict(type='triangle', v0=np.array(v0), v1=np.array(v1), v2=np.array(v2),
+                color=np.array(color), reflection=.5)
+
     
 # List of objects.
 color_plane0 = 1. * np.ones(3)
@@ -132,6 +175,7 @@ scene = [add_sphere([.75, .1, 1.], .6, [0., 0., 1.]),
          add_sphere([-.75, .1, 2.25], .6, [.5, .223, .5]),
          add_sphere([-2.75, .1, 3.5], .6, [1., .572, .184]),
          add_plane([0., -.5, 0.], [0., 1., 0.]),
+         add_triangle([-2., -0.5, 1], [-1., -0.5, 1], [-1.5, .5, 1], [1., 0., 0.]),
     ]
 
 lights = [
