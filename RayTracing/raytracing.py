@@ -195,7 +195,7 @@ specular_k = 50
 
 depth_max = 5  # Maximum number of light reflections.
 col = np.zeros(3)  # Current color.
-O = np.array([0., 0.35, -1.])  # Camera.
+O = np.array([0, 5., -10.5])  # Camera.
 Q = np.array([0., 0., 0.])  # Camera pointing to.
 img = np.zeros((h, w, 3))
 
