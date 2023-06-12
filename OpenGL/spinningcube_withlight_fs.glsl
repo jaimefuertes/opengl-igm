@@ -25,6 +25,7 @@ uniform Light light2;
 uniform vec3 view_pos;
 
 void main() {
+
   vec3 light_dir1 = normalize(light1.position - frag_3Dpos);
   vec3 light_dir2 = normalize(light2.position - frag_3Dpos);
   

@@ -37,7 +37,11 @@ const char *vertexFileName = "spinningcube_withlight_vs.glsl";
 const char *fragmentFileName = "spinningcube_withlight_fs.glsl";
 
 // Camera
-glm::vec3 camera_pos(0.0f, 0.0f, 3.0f);
+glm::vec3 camera_pos;
+glm::vec3 camera_pos1(0.0f, 0.0f, 3.0f);
+glm::vec3 camera_pos2(0.0f, 0.0f, -3.0f);
+int currentCamera = 0;
+
 
 // Lighting
 //Light 1
@@ -318,7 +322,6 @@ GLfloat tetra_vp[] = {
   location = glGetUniformLocation(shader_program, "view_pos");
   glUniform3fv(location, 1, glm::value_ptr(camera_pos));
   
-  
   //Lights
   //1 
   location = glGetUniformLocation(shader_program, "light1.position");
@@ -378,7 +381,13 @@ void render(double currentTime) {
 
   glm::mat4 model_matrix, view_matrix, proj_matrix;
   glm::mat3 normal_matrix;
+  
 
+  if (currentCamera == 0){
+    camera_pos = camera_pos1;
+  } else {
+    camera_pos = camera_pos2;
+  }
 
   view_matrix = glm::lookAt(                 camera_pos,  // pos
                             glm::vec3(0.0f, 0.0f, -1.0f),  // target
@@ -455,8 +464,21 @@ void render(double currentTime) {
 }
 
 void processInput(GLFWwindow *window) {
-  if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
     glfwSetWindowShouldClose(window, 1);
+  }
+  
+  if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS){
+    if (currentCamera == 0){
+      currentCamera = 1;
+    }
+  }
+  if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
+    if (currentCamera == 1){
+      currentCamera = 0;
+    } 
+  }
+    
 }
 
 // Callback function to track window size and update viewport
